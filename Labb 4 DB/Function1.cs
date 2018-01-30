@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
@@ -45,14 +44,10 @@ namespace Labb_4_DB
 
             var photo = (from kv in req.GetQueryNameValuePairs()
                          where kv.Key == "photo"
-                         select kv.Value).FirstOrDefault();
+                         select kv.Value).FirstOrDefault();//gjgjghg
 
-            //mode=viewReviewQueue - ska returnera en sträng som talar om vilka bilder som finns att granska
-            var mode = (from kv in req.GetQueryNameValuePairs()
-                        where kv.Key == "mode"
-                        select kv.Value).FirstOrDefault();
-            // Get request body
-            dynamic data = await req.Content.ReadAsAsync<object>();
+             // Get request body
+             dynamic data = await req.Content.ReadAsAsync<object>();
 
             // Set name to query string or body data
             email = email ?? data?.email;
@@ -61,70 +56,29 @@ namespace Labb_4_DB
             if (email != null && photo != null)
             {
                 // extension-method
-                if (email.IsValid())
+                if (true)
                 {
-                    try
-                    {
-                        // skapa instans
-                        CosmosDB cosmos = new CosmosDB();
-
-                        // skapa db / collections..
-                        await cosmos.CreateDBIfNotExists();
-                        await cosmos.CreateCollectionsIfNotExists();
-
-                        // skapa document
-
-                        await cosmos.CreateDocuments(email, photo);
-
-                        // Lägg till användare om inte redan existerande
-
-                        return await cosmos.InsertUserIfNotExists(MessageToUser, req);
-                        
-                    }
-                    catch (DocumentClientException de)
-                    {
-                        Exception baseException = de.GetBaseException();
-                        var message = $"{de.StatusCode} error occurred: {de.Message}, Message: {baseException.Message}";
-
-                        return MessageToUser(message, false, req);
-                    }
-                    catch (Exception e)
-                    {
-                        Exception baseException = e.GetBaseException();
-                        var message = $"Error: {e.Message}, message: {baseException.Message}";
-
-                        return MessageToUser(message, false, req);
-                        throw;
-                    }
-                    finally
-                    {
-
-                    }
+                    // returnera en sträng med information om vilka bilder som finns att granska!
+                    CosmosDB c = new CosmosDB(email, photo);
+                    return req.CreateResponse(HttpStatusCode.OK, "User added!");
                 }
-
-                else
-
-                    return MessageToUser("Invalid email, try again!", false, req);
+                //else
+                    
+                    //return req.CreateResponse(HttpStatusCode.BadRequest, "Invalid Email, try again!");
             }
 
-            else if (mode == "viewReviewQueue")
-            {
-                // skriv ut alla bilder som finns att granska!
-                CosmosDB cosmos = new CosmosDB();
-                return cosmos.ExecuteSimpleQuery(MessageToUser, req);
-                
-            }
             else
-                return MessageToUser("Invalid Input", false, req);
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Enter both email and photo!");
         }   
 
-
+        //private static void ReviewPhotos()
+        //{
+        //    CosmosDB c = new CosmosDB();
+        //}
 
         private static bool IsValid(this string input)
         {
-            var pattern = @"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*"
-                        + "@"
-                        + @"((([\-\w]+\.)+[a-zA-Z]{2,4})|(([0-9]{1,3}\.){3}[0-9]{1,3}))$";
+            var pattern = @"^[A-Za-z0-9]+\.?[A-Za-z0-9]+@{1}(gmail|yahoo|hotmail|outlook){1}\.{1}[A-Za-z]+$";
             var match = Regex.Match(input, pattern);
 
             if (match.Success)
@@ -133,19 +87,6 @@ namespace Labb_4_DB
             }
             else
                 return false;
-        }
-        
-        // Ger användaren status efter query
-        private static HttpResponseMessage MessageToUser(string message, bool valid, HttpRequestMessage req)
-        {
-            if (valid)
-            {
-                return req.CreateResponse(HttpStatusCode.OK, message);
-            }
-            
-            else
-                return req.CreateResponse(HttpStatusCode.BadRequest, message);
-
         }
     }
 }
