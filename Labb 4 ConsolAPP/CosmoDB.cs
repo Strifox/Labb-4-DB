@@ -45,10 +45,14 @@ namespace Labb_4_ConsolAPP
         }
 
         // Create documents with class - instances.
-        public async Task CreateDocuments(string emailAdress, string photoUrl)
+        public async Task CreateDocuments()
         {
-            emailDoc = new UserEmail(emailAdress);
-            photoDoc = new UserPhoto(photoUrl, emailAdress);
+            Console.WriteLine("Add Email");
+            string email = Console.ReadLine();
+            Console.WriteLine("Add a photo url");
+            string photoUrl = Console.ReadLine();
+            emailDoc = new UserEmail(email);
+            photoDoc = new UserPhoto(photoUrl, email);
         }
 
         //private void WriteToConsole(string format, params object[] args)   // Debug syfte
