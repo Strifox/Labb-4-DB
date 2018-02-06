@@ -104,20 +104,20 @@ namespace Labb_4_DB
 
                     }
                 }
-                else
-                    return MessageToUser("Invalid email, try again!", false, req);
+                return MessageToUser("Invalid email, try again!", false, req);
             }
-
-            if (mode == "viewReviewQueue")
+            if (mode.ToLower() == "viewreviewqueue")
             {
                 // skriv ut alla bilder som finns att granska!
                 CosmosDB cosmos = new CosmosDB();
                 return cosmos.ExecuteSimpleQuery(MessageToUser, req);
 
             }
-        
+
+            return MessageToUser("Invalid input, try again!", false, req);
+
         }
-        
+
 
 
 

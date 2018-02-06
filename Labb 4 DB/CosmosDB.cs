@@ -14,12 +14,12 @@ namespace Labb_4_DB
 {
     public class CosmosDB
     {
-        private const string EndpointUrl = "https://labb4db.documents.azure.com:443/";
-        private const string PKey = "WDNmnN1ZP4MwffILst3A4qQZ4pbtIsYVcfrwYgHZNwEO7gEZjgVnTu7Q00yjO0B94c3xD4cM2PEzR5uEcKOnPQ ==";
+        private const string EndpointUrl = "https://adventuredb.documents.azure.com:443/";
+        private const string PKey = "flO2gE3q4Evebl52oLD1WYLVn5DG95E1DYpEYzPTWZnSP4NZpir7FhAo49W9gBYTGAZFCtJLRMZtt2RSWOElfA==";
         private DocumentClient client;
 
         private static string databaseName = "info";
-        private static string[] collections = new string[] { "Emails", "NonExaminedPhotos", "ExaminedPhotos" };
+        private static string[] collections =  { "Emails", "NonExaminedPhotos", "ExaminedPhotos" };
         private UserEmail emailDoc;
         private UserPhoto photoDoc;
 
@@ -91,22 +91,22 @@ namespace Labb_4_DB
             {
                 await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collections.First(), this.emailDoc.Id));
 
-                return messageCallback($"User {this.emailDoc.EmailAdress} is already in DB!", false, req);
+                return messageCallback($"User {emailDoc.EmailAdress} is already in DB!", false, req);
             }
             catch (DocumentClientException de)
             {
                 if (de.StatusCode == HttpStatusCode.NotFound)
                 {
-                    await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections.First()), this.emailDoc);
+                    await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections[0]), this.emailDoc);
 
-                    await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections.Last()), this.photoDoc);
+                    await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections[1]), this.photoDoc);
 
                     return messageCallback("Added user " + this.emailDoc.EmailAdress, true, req);
 
                 }
                 else
                 {
-                    throw; // ??
+                    return messageCallback("User was not added " + this.emailDoc.EmailAdress, false, req);
                 }
             }
         }
@@ -135,29 +135,6 @@ namespace Labb_4_DB
             //{
             //    Console.WriteLine("\tRead {0}", family);
             //}
-        }
-        public void ExecuteSimpleQueryApprovedPhotos(Func<string, bool, HttpRequestMessage, HttpResponseMessage> messageCallback, HttpRequestMessage req)
-        {
-            // Set some common query options
-            //FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1 };
-
-            var tempPhoto = (from pic in collections[1]
-                             where collections[1] == photoDoc.PhotoUrl
-                             select pic).ToString();
-
-            var read = client.ReadDocumentAsync(tempPhoto);
-
-
-            foreach (var picture in read.ToString())
-            {
-                req.CreateResponse(HttpStatusCode.OK, "Removed " + read);
-                client.DeleteDocumentAsync(picture.ToString());
-            }
-
-            client.CreateDocumentQuery<UserPhoto>(
-                    UriFactory.CreateDocumentCollectionUri(databaseName, collections[2]), null)
-                .Select(p => p.PhotoUrl);
-
         }
     }
 }
