@@ -19,7 +19,7 @@ namespace Labb_4_DB
         private DocumentClient client;
 
         private static string databaseName = "info";
-        private static string[] collections = new string[] { "Emails", "NonExaminedPhotos" };
+        private static string[] collections = new string[] { "Emails", "NonExaminedPhotos", "ExaminedPhotos" };
         private UserEmail emailDoc;
         private UserPhoto photoDoc;
 
@@ -41,14 +41,14 @@ namespace Labb_4_DB
 
             await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[1] });
 
-            await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = "ExaminedPhotos" });
+            await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[2] });
         }
 
         // Create documents with class - instances.
         public async Task CreateDocuments(string emailAdress, string photoUrl)
         {
-            this.emailDoc = new UserEmail(emailAdress);
-            this.photoDoc = new UserPhoto(photoUrl, emailAdress);
+           emailDoc = new UserEmail(emailAdress);
+            photoDoc = new UserPhoto(photoUrl, emailAdress);
         }
 
         //private void WriteToConsole(string format, params object[] args)   // Debug syfte
@@ -135,6 +135,29 @@ namespace Labb_4_DB
             //{
             //    Console.WriteLine("\tRead {0}", family);
             //}
+        }
+        public void ExecuteSimpleQueryApprovedPhotos(Func<string, bool, HttpRequestMessage, HttpResponseMessage> messageCallback, HttpRequestMessage req)
+        {
+            // Set some common query options
+            //FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1 };
+
+            var tempPhoto = (from pic in collections[1]
+                             where collections[1] == photoDoc.PhotoUrl
+                             select pic).ToString();
+
+            var read = client.ReadDocumentAsync(tempPhoto);
+
+
+            foreach (var picture in read.ToString())
+            {
+                req.CreateResponse(HttpStatusCode.OK, "Removed " + read);
+                client.DeleteDocumentAsync(picture.ToString());
+            }
+
+            client.CreateDocumentQuery<UserPhoto>(
+                    UriFactory.CreateDocumentCollectionUri(databaseName, collections[2]), null)
+                .Select(p => p.PhotoUrl);
+
         }
     }
 }

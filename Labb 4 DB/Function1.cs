@@ -11,7 +11,7 @@ using Microsoft.Azure.WebJobs.Host;
 
 namespace Labb_4_DB
 
-                                                                     //LABB-BESKRIVNING!
+//LABB-BESKRIVNING!
 
 //Appen ska vara en console-applikation, som kan ansluta till en Cosmos databas i Azure-molnet.Man ska kunna lägga till användare som har e-postadress och profilbild.Men för att hindra att vilka bilder som helst läggs upp så ska de granskas av en administratör innan de godkänns.Det ska också gå att se vilka användare som finns inlagda och vilka bilder som finns i kö för att godkännas.
 
@@ -40,8 +40,8 @@ namespace Labb_4_DB
 
             // parse query parameter
             var email = (from kv in req.GetQueryNameValuePairs()
-                        where kv.Key == "email"
-                        select kv.Value).FirstOrDefault();
+                         where kv.Key == "email"
+                         select kv.Value).FirstOrDefault();
 
             var photo = (from kv in req.GetQueryNameValuePairs()
                          where kv.Key == "photo"
@@ -51,12 +51,16 @@ namespace Labb_4_DB
             var mode = (from kv in req.GetQueryNameValuePairs()
                         where kv.Key == "mode"
                         select kv.Value).FirstOrDefault();
+
+
+
             // Get request body
             dynamic data = await req.Content.ReadAsAsync<object>();
 
             // Set name to query string or body data
             email = email ?? data?.email;
             photo = photo ?? data?.photo;
+            mode = mode ?? data?.mode;
 
             if (email != null && photo != null)
             {
@@ -79,7 +83,7 @@ namespace Labb_4_DB
                         // Lägg till användare om inte redan existerande
 
                         return await cosmos.InsertUserIfNotExists(MessageToUser, req);
-                        
+
                     }
                     catch (DocumentClientException de)
                     {
@@ -94,29 +98,26 @@ namespace Labb_4_DB
                         var message = $"Error: {e.Message}, message: {baseException.Message}";
 
                         return MessageToUser(message, false, req);
-                        throw;
                     }
                     finally
                     {
 
                     }
                 }
-
                 else
-
                     return MessageToUser("Invalid email, try again!", false, req);
             }
 
-            else if (mode == "viewReviewQueue")
+            if (mode == "viewReviewQueue")
             {
                 // skriv ut alla bilder som finns att granska!
                 CosmosDB cosmos = new CosmosDB();
                 return cosmos.ExecuteSimpleQuery(MessageToUser, req);
-                
+
             }
-            else
-                return MessageToUser("Invalid Input", false, req);
-        }   
+        
+        }
+        
 
 
 
@@ -134,7 +135,7 @@ namespace Labb_4_DB
             else
                 return false;
         }
-        
+
         // Ger användaren status efter query
         private static HttpResponseMessage MessageToUser(string message, bool valid, HttpRequestMessage req)
         {
@@ -142,10 +143,12 @@ namespace Labb_4_DB
             {
                 return req.CreateResponse(HttpStatusCode.OK, message);
             }
-            
+
             else
                 return req.CreateResponse(HttpStatusCode.BadRequest, message);
 
         }
+
+
     }
 }
