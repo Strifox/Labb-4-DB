@@ -29,24 +29,25 @@ namespace Labb_4_ConsolAPP
             client = new DocumentClient(new Uri(EndpointUrl), PKey);
         }
 
-        public async Task CreateDBIfNotExists()
+        public void CreateDBIfNotExists()
         {
-            await client.CreateDatabaseIfNotExistsAsync(new Database { Id = databaseName });
+            client.CreateDatabaseIfNotExistsAsync(new Database { Id = databaseName });
         }
 
-        public async Task CreateCollectionsIfNotExists()
+        public  void CreateCollectionsIfNotExists()
         {
 
-            await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[0] });
+           client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[0] });
 
-            await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[1] });
+           client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[1] });
 
-            await client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[2] });
+           client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[2] });
         }
 
         // Create documents with class - instances.
         public async Task CreateDocuments()
         {
+            Console.Clear();
             Console.WriteLine("Add Email");
             string email = Console.ReadLine();
             Console.WriteLine("Add a photo url");
@@ -60,8 +61,8 @@ namespace Labb_4_ConsolAPP
             else
             {
                 Console.WriteLine("Invalid Input");
-                await CreateDocuments();
             }
+            Console.Clear();
         }
 
         public class UserEmail
@@ -102,7 +103,7 @@ namespace Labb_4_ConsolAPP
             {
                 if (de.StatusCode == HttpStatusCode.NotFound)
                 {
-                    await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections[0]), this.emailDoc);
+                   await  client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections[0]), this.emailDoc);
 
                     await client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collections[1]), this.photoDoc);
 
@@ -116,36 +117,36 @@ namespace Labb_4_ConsolAPP
             }
         }
 
+        public void GetUsers()
+        {
+            Console.Clear();
+            IQueryable<string> showPlayerQueryable = this.client.CreateDocumentQuery<UserEmail>(
+                        UriFactory.CreateDocumentCollectionUri(databaseName, collections[0]), null)
+                    .Select(p => p.EmailAdress);
+
+            string users = null;
+            foreach (var user in showPlayerQueryable)
+            {
+                users += user + "\n";
+            }
+            Console.WriteLine($"Users\n\n" + users);
+
+        }
         public void GetPendingPhotos()
         {
-            // Set some common query options
-            //FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1 };
-
-            string nonExaminedPhotosAsString = "NON-EXAMINED PHOTOS\n";
-
+            Console.Clear();
             IQueryable<string> nonExaminedPhotos = this.client.CreateDocumentQuery<UserPhoto>(
                     UriFactory.CreateDocumentCollectionUri(databaseName, collections[1]), null)
                     .Select(p => p.PhotoUrl);
+
+            string pendingPhoto = null;
             foreach (var photo in nonExaminedPhotos)
             {
-                Console.WriteLine(nonExaminedPhotosAsString += photo + "\n");
+                pendingPhoto += photo + "\n";
             }
+            Console.WriteLine($"Pending photos for approval\n\n" + pendingPhoto);
         }
 
-        public void GetUsers()
-        {
-            string showPlayers = "Emails\n";
-            {
-                IQueryable<string> showPlayerQueryable = this.client.CreateDocumentQuery<UserEmail>(
-                        UriFactory.CreateDocumentCollectionUri(databaseName, collections[1]), null)
-                    .Select(p => p.EmailAdress);
-                foreach (var photo in showPlayerQueryable)
-                {
-                    Console.WriteLine(showPlayers += photo + "\n");
-                }
-            }
-
-        }
 
     }
 

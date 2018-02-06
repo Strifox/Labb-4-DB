@@ -14,7 +14,7 @@ namespace Labb_4_ConsolAPP
         static CosmoDB cosmoDB = new CosmoDB();
         public async void Menu()
         {
-             cosmoDB.CreateDBIfNotExists();
+            cosmoDB.CreateDBIfNotExists();
             cosmoDB.CreateCollectionsIfNotExists();
 
             Console.WriteLine("Welcome to Azure-Cosmos Labb!");
@@ -24,22 +24,19 @@ namespace Labb_4_ConsolAPP
             do
             {
 
-                Console.WriteLine("1.) Add User\n2.) Show all users\n3.) Show pending pictures");
+                Console.WriteLine("1.) Add User\n2.) Show all users\n3.) Show pending pictures\nPRESS ESC TO EXIT");
                 key = Console.ReadKey(true).Key;
                 switch (key)
                 {
                     case ConsoleKey.D1:
                         // Fråga efter email och photo och lägg sedan till user!
-                        await cosmoDB.CreateDocuments();
-                        Menu();
+                       await cosmoDB.CreateDocuments();
                         break;
                     case ConsoleKey.D2:
                         cosmoDB.GetUsers();
-                        Menu();
                         break;
                     case ConsoleKey.D3:
                         cosmoDB.GetPendingPhotos();
-                        Menu();
                         break;
                     case ConsoleKey.Escape:
                         break;
@@ -49,7 +46,7 @@ namespace Labb_4_ConsolAPP
                         break;
                 }
 
-            } while (key != ConsoleKey.D1 && key != ConsoleKey.D2 && key != ConsoleKey.D3 && key != ConsoleKey.Escape);
+            } while (key != ConsoleKey.Escape);
         }
 
 

@@ -19,7 +19,7 @@ namespace Labb_4_DB
         private DocumentClient client;
 
         private static string databaseName = "info";
-        private static string[] collections =  { "Emails", "NonExaminedPhotos", "ExaminedPhotos" };
+        private static string[] collections = { "Emails", "NonExaminedPhotos", "ExaminedPhotos" };
         private UserEmail emailDoc;
         private UserPhoto photoDoc;
 
@@ -47,7 +47,7 @@ namespace Labb_4_DB
         // Create documents with class - instances.
         public async Task CreateDocuments(string emailAdress, string photoUrl)
         {
-           emailDoc = new UserEmail(emailAdress);
+            emailDoc = new UserEmail(emailAdress);
             photoDoc = new UserPhoto(photoUrl, emailAdress);
         }
 
@@ -128,13 +128,6 @@ namespace Labb_4_DB
                 nonExaminedPhotosAsString += photo + "\n";
             }
             return messageCallback(nonExaminedPhotosAsString, true, req);
-
-            // The query is executed synchronously here, but can also be executed asynchronously via the IDocumentQuery<T> interface
-            //Console.WriteLine("Running LINQ query...");
-            //foreach (Family family in familyQuery)
-            //{
-            //    Console.WriteLine("\tRead {0}", family);
-            //}
         }
     }
 }
