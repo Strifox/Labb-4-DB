@@ -14,8 +14,8 @@ namespace Labb_4_ConsolAPP
 {
     public class CosmoDB
     {
-        private const string EndpointUrl = "https://adventuredb.documents.azure.com:443/";
-        private const string PKey = "flO2gE3q4Evebl52oLD1WYLVn5DG95E1DYpEYzPTWZnSP4NZpir7FhAo49W9gBYTGAZFCtJLRMZtt2RSWOElfA==";
+        private const string EndpointUrl = "Enter Here"; // Enter URL here
+        private const string PKey = "PrimaryKey Here"; // Eneter primary key here
         private DocumentClient client;
 
         private static string databaseName = "info";
