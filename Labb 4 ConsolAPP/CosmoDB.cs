@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace Labb_4_ConsolAPP
 {
-    class CosmoDB
+    public class CosmoDB
     {
         private const string EndpointUrl = "https://adventuredb.documents.azure.com:443/";
         private const string PKey = "flO2gE3q4Evebl52oLD1WYLVn5DG95E1DYpEYzPTWZnSP4NZpir7FhAo49W9gBYTGAZFCtJLRMZtt2RSWOElfA==";
@@ -51,18 +51,20 @@ namespace Labb_4_ConsolAPP
             string email = Console.ReadLine();
             Console.WriteLine("Add a photo url");
             string photoUrl = Console.ReadLine();
-            emailDoc = new UserEmail(email);
-            photoDoc = new UserPhoto(photoUrl, email);
+            if (DataContext.IsValid(email))
+            {
+                emailDoc = new UserEmail(email);
+                photoDoc = new UserPhoto(photoUrl, email);
+                InsertUserIfNotExists();
+            }
+            else
+            {
+                Console.WriteLine("Invalid Input");
+                await CreateDocuments();
+            }
         }
 
-        //private void WriteToConsole(string format, params object[] args)   // Debug syfte
-        //{
-        //    Debug.WriteLine(format, args);
-        //    Debug.WriteLine("Press any key to continue ...");
-        //    Console.ReadKey();
-        //}
-
-        private class UserEmail
+        public class UserEmail
         {
             [JsonProperty(PropertyName = "id")]
             public string Id { get; set; }
@@ -75,7 +77,7 @@ namespace Labb_4_ConsolAPP
             }
         }
 
-        private class UserPhoto
+        public class UserPhoto
         {
             [JsonProperty(PropertyName = "id")]
             public string Id { get; set; }
@@ -114,7 +116,7 @@ namespace Labb_4_ConsolAPP
             }
         }
 
-        public void ExecuteSimpleQuery()
+        public void GetPendingPhotos()
         {
             // Set some common query options
             //FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1 };
@@ -124,15 +126,27 @@ namespace Labb_4_ConsolAPP
             IQueryable<string> nonExaminedPhotos = this.client.CreateDocumentQuery<UserPhoto>(
                     UriFactory.CreateDocumentCollectionUri(databaseName, collections[1]), null)
                     .Select(p => p.PhotoUrl);
-
             foreach (var photo in nonExaminedPhotos)
             {
-                // callback Invoke!
-                nonExaminedPhotosAsString += photo + "\n";
+                Console.WriteLine(nonExaminedPhotosAsString += photo + "\n");
             }
-            Console.WriteLine(nonExaminedPhotosAsString);
+        }
+
+        public void GetUsers()
+        {
+            string showPlayers = "Emails\n";
+            {
+                IQueryable<string> showPlayerQueryable = this.client.CreateDocumentQuery<UserEmail>(
+                        UriFactory.CreateDocumentCollectionUri(databaseName, collections[1]), null)
+                    .Select(p => p.EmailAdress);
+                foreach (var photo in showPlayerQueryable)
+                {
+                    Console.WriteLine(showPlayers += photo + "\n");
+                }
+            }
+
         }
 
     }
-}
 
+}

@@ -10,6 +10,8 @@ namespace Labb_4_ConsolAPP
     {
         static void Main(string[] args)
         {
+            DataContext data = new DataContext();
+            data.Menu();
         }
     }
 }

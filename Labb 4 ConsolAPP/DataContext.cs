@@ -12,8 +12,11 @@ namespace Labb_4_ConsolAPP
     public class DataContext
     {
         static CosmoDB cosmoDB = new CosmoDB();
-        public static void Menu()
+        public async void Menu()
         {
+             cosmoDB.CreateDBIfNotExists();
+            cosmoDB.CreateCollectionsIfNotExists();
+
             Console.WriteLine("Welcome to Azure-Cosmos Labb!");
             Thread.Sleep(1000);
 
@@ -23,30 +26,34 @@ namespace Labb_4_ConsolAPP
 
                 Console.WriteLine("1.) Add User\n2.) Show all users\n3.) Show pending pictures");
                 key = Console.ReadKey(true).Key;
-                switch(key)
+                switch (key)
                 {
                     case ConsoleKey.D1:
                         // Fråga efter email och photo och lägg sedan till user!
-                        cosmoDB.CreateDocuments();
+                        await cosmoDB.CreateDocuments();
+                        Menu();
                         break;
                     case ConsoleKey.D2:
-                        cosmoDB.ExecuteSimpleQuery();
+                        cosmoDB.GetUsers();
+                        Menu();
                         break;
                     case ConsoleKey.D3:
-                        cosmoDB.ExecuteSimpleQuery();
+                        cosmoDB.GetPendingPhotos();
+                        Menu();
+                        break;
+                    case ConsoleKey.Escape:
                         break;
                     default:
                         Console.WriteLine("Wrong input. Try again!");
                         Console.ReadKey();
                         break;
-            
                 }
 
-            } while (key != ConsoleKey.D1 && key != ConsoleKey.D2 && key != ConsoleKey.D3);
+            } while (key != ConsoleKey.D1 && key != ConsoleKey.D2 && key != ConsoleKey.D3 && key != ConsoleKey.Escape);
         }
 
 
-        private static bool IsValid(string input)
+        public static bool IsValid(string input)
         {
             var pattern = @"^[\w!#$%&'*+\-/=?\^_`{|}~]+(\.[\w!#$%&'*+\-/=?\^_`{|}~]+)*"
                           + "@"
@@ -57,8 +64,7 @@ namespace Labb_4_ConsolAPP
             {
                 return true;
             }
-            else
-                return false;
+            return false;
         }
     }
 }
