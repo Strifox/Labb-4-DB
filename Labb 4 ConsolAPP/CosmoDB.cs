@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json;
@@ -14,8 +15,8 @@ namespace Labb_4_ConsolAPP
 {
     public class CosmoDB
     {
-        private const string EndpointUrl = "Enter Here"; // Enter URL here
-        private const string PKey = "PrimaryKey Here"; // Eneter primary key here
+        private const string EndpointUrl = "https://labb4db.documents.azure.com:443/"; // Enter URL here
+        private const string PKey = "WDNmnN1ZP4MwffILst3A4qQZ4pbtIsYVcfrwYgHZNwEO7gEZjgVnTu7Q00yjO0B94c3xD4cM2PEzR5uEcKOnPQ=="; // Eneter primary key here
         private DocumentClient client;
 
         private static string databaseName = "info";
@@ -34,7 +35,7 @@ namespace Labb_4_ConsolAPP
             client.CreateDatabaseIfNotExistsAsync(new Database { Id = databaseName });
         }
 
-        public  void CreateCollectionsIfNotExists()
+        public void CreateCollectionsIfNotExists()
         {
 
            client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(databaseName), new DocumentCollection { Id = collections[0] });
@@ -52,15 +53,25 @@ namespace Labb_4_ConsolAPP
             string email = Console.ReadLine();
             Console.WriteLine("Add a photo url");
             string photoUrl = Console.ReadLine();
-            if (DataContext.IsValid(email))
+
+            if (email.Trim().Length > 0 && photoUrl.Trim().Length > 0)
             {
-                emailDoc = new UserEmail(email);
-                photoDoc = new UserPhoto(photoUrl, email);
-                InsertUserIfNotExists();
+                if (DataContext.IsValid(email))
+                {
+                    emailDoc = new UserEmail(email);
+                    photoDoc = new UserPhoto(photoUrl, email);
+                    InsertUserIfNotExists();
+                }
+                else
+                {
+                    Console.WriteLine("That Email is not valid. Try Again!");
+                    Thread.Sleep(2000);
+                }
             }
             else
             {
-                Console.WriteLine("Invalid Input");
+                Console.WriteLine("Enter both email & photo url to add user!");
+                Thread.Sleep(2000);
             }
             Console.Clear();
         }
@@ -87,7 +98,7 @@ namespace Labb_4_ConsolAPP
             public UserPhoto(string photoUrl, string emailAdress)
             {
                 this.Id = emailAdress;
-                this.PhotoUrl = photoUrl;
+                this.PhotoUrl = photoUrl.Trim();
             }
         }
 

@@ -11,9 +11,10 @@ namespace Labb_4_ConsolAPP
 {
     public class DataContext
     {
-        static CosmoDB cosmoDB = new CosmoDB();
+        static CosmoDB cosmoDB;
         public async void Menu()
         {
+            cosmoDB = new CosmoDB(); 
             cosmoDB.CreateDBIfNotExists();
             cosmoDB.CreateCollectionsIfNotExists();
 
@@ -30,7 +31,7 @@ namespace Labb_4_ConsolAPP
                 {
                     case ConsoleKey.D1:
                         // Fråga efter email och photo och lägg sedan till user!
-                       await cosmoDB.CreateDocuments();
+                       cosmoDB.CreateDocuments().Wait();
                         break;
                     case ConsoleKey.D2:
                         cosmoDB.GetUsers();
@@ -48,7 +49,6 @@ namespace Labb_4_ConsolAPP
 
             } while (key != ConsoleKey.Escape);
         }
-
 
         public static bool IsValid(string input)
         {
